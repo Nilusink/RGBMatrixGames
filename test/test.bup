@@ -1,0 +1,172 @@
+#include <Adafruit_GFX.h>
+#include <Adafruit_GrayOLED.h>
+#include <Adafruit_SPITFT.h>
+#include <Adafruit_SPITFT_Macros.h>
+#include <gfxfont.h>
+
+
+#include <Arduino.h>
+
+#include <TomThumb.h> // this should be in the adafruit-gfx library
+#include <ESP32-RGB64x32MatrixPanel-I2S-DMA.h>
+
+RGB64x32MatrixPanel_I2S_DMA matrix;
+
+#define X 64
+#define Y 32
+#define N_PIXELS (X*Y)
+
+
+int PIXEL_BUFFER[N_PIXELS] = {0};
+
+
+#define OE 4
+#define LAT 13
+#define CLK 16
+#define CH_D 17
+#define CH_C 18
+#define CH_B 19
+#define CH_A 21
+#define CH_E 22
+#define BL2 23
+#define G2 25
+#define R2 26
+#define BL1 27
+#define G1 32
+#define R1 33
+
+
+
+uint16_t rgb(uint8_t r, uint8_t g, uint8_t b)
+{
+    // rgb as int: 5 - 6 - 5
+    return ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
+}
+
+
+void animatePixels(RGB64x32MatrixPanel_I2S_DMA &m, uint16_t color)
+{
+    for (int x = 0; x < X; x++)
+    {
+        for (int y = 0; y < Y; y++)
+        {
+            m.drawPixel(x, y, color);
+            // delay(10);
+        }
+    }
+}
+
+
+
+void resetPanel()
+{
+int MaxLed = 64;
+
+int C12[16] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+int C13[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0};
+
+pinMode(R1, OUTPUT);
+pinMode(G1, OUTPUT);
+pinMode(BL1, OUTPUT);
+pinMode(R2, OUTPUT);
+pinMode(G2, OUTPUT);
+pinMode(BL2, OUTPUT);
+pinMode(CH_A, OUTPUT);
+pinMode(CH_B, OUTPUT);
+pinMode(CH_C, OUTPUT);
+pinMode(CH_D, OUTPUT);
+pinMode(CH_E, OUTPUT);
+pinMode(CLK, OUTPUT);
+pinMode(LAT, OUTPUT);
+pinMode(OE, OUTPUT);
+
+// Send Data to control register 11
+digitalWrite(OE, HIGH); // Display reset
+digitalWrite(LAT, LOW);
+digitalWrite(CLK, LOW);
+for (int l = 0; l < MaxLed; l++)
+{
+int y = l % 16;
+digitalWrite(R1, LOW);
+digitalWrite(G1, LOW);
+digitalWrite(BL1, LOW);
+digitalWrite(R2, LOW);
+digitalWrite(G2, LOW);
+digitalWrite(BL2, LOW);
+if (C12[y] == 1)
+{
+digitalWrite(R1, HIGH);
+digitalWrite(G1, HIGH);
+digitalWrite(BL1, HIGH);
+digitalWrite(R2, HIGH);
+digitalWrite(G2, HIGH);
+digitalWrite(BL2, HIGH);
+}
+if (l > MaxLed - 12)
+{
+digitalWrite(LAT, HIGH);
+}
+else
+{
+digitalWrite(LAT, LOW);
+}
+digitalWrite(CLK, HIGH);
+digitalWrite(CLK, LOW);
+}
+digitalWrite(LAT, LOW);
+digitalWrite(CLK, LOW);
+// Send Data to control register 12
+for (int l = 0; l < MaxLed; l++)
+{
+int y = l % 16;
+digitalWrite(R1, LOW);
+digitalWrite(G1, LOW);
+digitalWrite(BL1, LOW);
+digitalWrite(R2, LOW);
+digitalWrite(G2, LOW);
+digitalWrite(BL2, LOW);
+if (C13[y] == 1)
+{
+digitalWrite(R1, HIGH);
+digitalWrite(G1, HIGH);
+digitalWrite(BL1, HIGH);
+digitalWrite(R2, HIGH);
+digitalWrite(G2, HIGH);
+digitalWrite(BL2, HIGH);
+}
+if (l > MaxLed - 13)
+{
+digitalWrite(LAT, HIGH);
+}
+else
+{
+digitalWrite(LAT, LOW);
+}
+digitalWrite(CLK, HIGH);
+digitalWrite(CLK, LOW);
+}
+digitalWrite(LAT, LOW);
+digitalWrite(CLK, LOW);
+}
+// End of default setup for RGB Matrix 64x32 panel
+///////////////////////////////////////////////////////////////
+
+void setup(){
+    resetPanel(); // do this before matrix.begin
+
+    // If you experience ghosting, you will need to reduce the brightness level, not all RGB Matrix
+    // Panels are the same - some seem to display ghosting artefacts at lower brightness levels.
+    // In the setup() function do something like:
+
+    matrix.setPanelBrightness(30); // SETS THE BRIGHTNESS HERE. 60 OR LOWER IDEAL.
+
+    matrix.begin(R1, G1, BL1, R2, G2, BL2, CH_A, CH_B, CH_C, CH_D, CH_E, LAT, OE, CLK); // setup the LED matrix
+    // matrix.setFont(&TomThumb.h);
+    matrix.setTextColor(rgb(255, 255, 255));//matrix.Color(96, 0, 96)); // r,g,b
+    matrix.setCursor(1, 15);
+    // matrix.println("Hellow");
+
+}
+
+void loop(){
+}
