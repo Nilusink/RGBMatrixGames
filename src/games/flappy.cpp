@@ -36,8 +36,7 @@ bool Flappy::step(double delta)
     // check if first wall is out of screen
     if (first_wall_position - floor(world_pos) <= -WALL_THICKNESS)
     {   // need new walls
-        // count up score
-        score++;
+        score_counted_for_wall = false;
 
         first_wall_position += WALL_DISTANCE;
 
@@ -75,7 +74,7 @@ bool Flappy::step(double delta)
     }
 
     /// walls
-    //// check x then y
+    //// check x then y 
     if
     (
         (world_pos + BIRD_X) - BIRD_SIZE <= first_wall_position + WALL_THICKNESS
@@ -92,6 +91,13 @@ bool Flappy::step(double delta)
         }
     }
 
+    // only count up once per wall :-)
+    if ((world_pos + BIRD_X) - BIRD_SIZE >= first_wall_position && !score_counted_for_wall)
+    {
+        score_counted_for_wall = true;
+        score++;
+    }
+
     return true;
 }
 
@@ -99,37 +105,39 @@ bool Flappy::step(double delta)
 void Flappy::render()
 {
     // walls
-    int disp_pos;
+    float disp_pos;
     for (uint n_wall = 0; n_wall < X_SIZE / WALL_DISTANCE; n_wall++)
     {
-        disp_pos = (first_wall_position - floor(world_pos)) + WALL_DISTANCE * n_wall;
+        disp_pos = (first_wall_position - world_pos) + WALL_DISTANCE * n_wall;
 
         // only draw walls that are on screen
         if (disp_pos >= -WALL_THICKNESS && disp_pos <= X_SIZE)
         {
             // m.fillCircle(disp_pos, wall_heights[n_wall], 2, matrix::rgb(WALL_COLOR));
             // upper wall
-            m.fillRect(
+            matrix::fillAntiAliaseRect(
+                m,
                 disp_pos,
                 0,
                 WALL_THICKNESS,
                 wall_heights[n_wall],
-                matrix::rgb(WALL_COLOR)
+                {WALL_COLOR}
             );
 
             // lower wall
-            m.fillRect(
+            matrix::fillAntiAliaseRect(
+                m,
                 disp_pos,
                 wall_heights[n_wall] + WALL_GAP_HEIGHT,
                 WALL_THICKNESS,
                 Y_SIZE - (wall_heights[n_wall] + WALL_GAP_HEIGHT),
-                matrix::rgb(WALL_COLOR)
+                {WALL_COLOR}
             );
 
             // clear area to next wall
             // upper wall
             m.fillRect(
-                disp_pos + WALL_THICKNESS,
+                disp_pos + WALL_THICKNESS + 1,
                 0,
                 2,
                 wall_heights[n_wall],
@@ -138,7 +146,7 @@ void Flappy::render()
 
             // lower wall
             m.fillRect(
-                disp_pos + WALL_THICKNESS,
+                disp_pos + WALL_THICKNESS + 1,
                 wall_heights[n_wall] + WALL_GAP_HEIGHT,
                 2,
                 Y_SIZE - (wall_heights[n_wall] + WALL_GAP_HEIGHT),
@@ -165,24 +173,63 @@ void Flappy::render()
         matrix::rgb(BG_COLOR)
     );
 
-    m.fillRect(
+    matrix::fillAntiAliaseRect(
+        m,
         BIRD_X - BIRD_SIZE,
         bird_y - BIRD_SIZE,
         BIRD_SIZE * 2,
         BIRD_SIZE * 2,
-        matrix::rgb(BIRD_COLOR)
+        {BIRD_COLOR}
     );
 
     // player scores
-    m.setCursor(44, 0);
+    if (score != last_score)
+    {
+    }
+
+    /// clear previous number
+    m.fillRect(
+        (score > 9) ? ((score > 99) ? 46 : 52) : 58,
+        0,
+        17,
+        16,
+        matrix::rgb(BG_COLOR)
+    );
+
+    m.setCursor(((score > 9) ? ((score > 99) ? 46 : 52) : 58), 1);
     m.setTextColor(matrix::rgb(TEXT_COLOR));
     m.printf("%d", score);
+
+    last_score = score;
+}
+
+
+void Flappy::game_over_screen()
+{
+    m.fillRect(
+        (highscore > 9) ? ((highscore > 99) ? 45 : 51) : 57,
+        0,
+        17,
+        16,
+        matrix::rgb(BG_COLOR)
+    );
+
+    m.setCursor(((score > 9) ? ((score > 99) ? 46 : 52) : 58), 1);
+    m.setTextColor(matrix::rgb(TEXT_COLOR));
+
+    m.printf("%d", score);
+    highscore = max(highscore, score);
+
+    m.setCursor(((highscore > 9) ? ((highscore > 99) ? 46 : 52) : 58), 9);
+    m.setTextColor(matrix::rgb(TEXT_COLOR));
+    m.printf("%d", highscore);
 }
 
 
 void Flappy::reset()
 {
     matrix::clear(m, matrix::rgb(BG_COLOR));
+
     // reset game variables
     bird_y = BIRD_SIZE;
     bird_vel_y = 0;
@@ -190,6 +237,10 @@ void Flappy::reset()
     world_pos = 0;
     world_vel = WORLD_START_VEL;
     first_wall_position = FIRST_WALL;
+
+    score_counted_for_wall = false;
+
+    score = 0;
 
     // re-generate walls
     init_walls();

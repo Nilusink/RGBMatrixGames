@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "display.hpp"
 #include "pinout.h"
 
@@ -108,4 +110,80 @@ void matrix::clear(RGB64x32MatrixPanel_I2S_DMA &mat)
 void matrix::clear(RGB64x32MatrixPanel_I2S_DMA &mat, uint16_t color)
 {
     mat.fillRect(0, 0, X_SIZE, Y_SIZE, color);
+}
+
+
+void matrix::fillAntiAliaseRect(RGB64x32MatrixPanel_I2S_DMA &mat, double x, double y, double width, double height, rgb_t color)
+{
+    const double top_multiplier = 1 - (y - floor(y));
+    const double bottom_multiplier = y - floor(y);
+    const double left_multiplier = 1 - (x - floor(x));
+    const double right_multiplier = x - floor(x);
+
+    // draw base rectangle
+    mat.fillRect(x+1, y+1, width-1, height-1, color);
+
+    // if over line, half-draw
+    /// top
+    mat.fillRect(
+        x+1,
+        y,
+        width-1,
+        1,
+        rgb(
+            color.r * top_multiplier,
+            color.g * top_multiplier,
+            color.g * top_multiplier
+        )
+    );
+
+    /// bottom
+    mat.fillRect(
+        x,
+        y + height,
+        width,
+        1,
+        rgb(
+            color.r * bottom_multiplier,
+            color.g * bottom_multiplier,
+            color.g * bottom_multiplier
+        )
+    );
+
+    /// left
+    mat.fillRect(
+        x,
+        y+1,
+        1,
+        height-1,
+        rgb(
+            color.r * left_multiplier,
+            color.g * left_multiplier,
+            color.g * left_multiplier
+        )
+    );
+
+    /// right
+    mat.fillRect(
+        x + width,
+        y,
+        1,
+        height,
+        rgb(
+            color.r * right_multiplier,
+            color.g * right_multiplier,
+            color.g * right_multiplier
+        )
+    );
+
+    // upper left pixel
+    mat.drawPixel(
+        x,
+        y,
+        rgb(
+            color.r * min(left_multiplier, top_multiplier),
+            color.g * min(left_multiplier, top_multiplier),
+            color.g * min(left_multiplier, top_multiplier)
+        )
+    );
 }

@@ -52,6 +52,7 @@ void loop()
     if (!game.step(now - last))
     {
         game.render();
+        game.game_over_screen();
         delay(500);
         while (!Serial.available()) { delay(100); }
 

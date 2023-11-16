@@ -39,8 +39,11 @@ namespace flappy
             int wall_heights[32] = {0};  // hard coded max walls, may cause problems
             int first_wall_position = FIRST_WALL;
 
+            bool score_counted_for_wall = false;
+
             uint highscore = 0;
             uint score = 0;
+            uint last_score = 0;
 
             uint random_wall_height();
             void init_walls();
@@ -50,6 +53,7 @@ namespace flappy
 
             bool step(double delta) override;
             void render() override;
+            void game_over_screen() override;
             void reset() override;
     };
 }
