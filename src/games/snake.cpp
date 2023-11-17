@@ -1,19 +1,22 @@
 #include <Arduino.h>
 
 #include "snake.hpp"
+#include "display.hpp"
+
+
+using namespace snake;
 
 
 Snake::Snake(RGB64x32MatrixPanel_I2S_DMA &mat)
  : m(mat)
 {
     reset_snake();
+    generate_apple();
 }
 
 
 void Snake::reset_snake()
 {
-    positions = {{0, 0}};
-
     positions[0] = {4, 1};
     positions[1] = {3, 1};
     positions[2] = {2, 1};
@@ -26,15 +29,50 @@ void Snake::reset_snake()
 void Snake::generate_apple()
 {
     // delete last apple
-    m.drawPixel(apple_pos.x, apple_pos.y, matrix::rgb(BG_COLOR));
-    apple_pos = {random(0, X_SIZE), random(0, Y_SIZE)};
-    matrix::clear(m, BG_COLOR);
+    apple_pos = {random(0, GAME_SIZE_X), random(0, GAME_SIZE_Y)};
 }
 
 
-void Snake::step(double delta)
+bool Snake::step(double delta)
 {
     time_since_step += delta;
+
+    if (Serial.available())
+    {
+        char key = Serial.read();
+        if (key == 'w')
+        {
+            base::point_t new_pos = {positions[0].x, positions[0].y - 1};
+            if (new_pos != positions[1])
+            {
+                facing = 0;
+            }
+        }
+        else if (key == 'd')
+        {
+            base::point_t new_pos = {positions[0].x + 1, positions[0].y};
+            if (new_pos != positions[1])
+            {
+                facing = 1;
+            }
+        }
+        else if (key == 's')
+        {
+            base::point_t new_pos = {positions[0].x, positions[0].y + 1};
+            if (new_pos != positions[1])
+            {
+                facing = 2;
+            }
+        }
+        else if (key == 'a')
+        {
+            base::point_t new_pos = {positions[0].x - 1, positions[0].y};
+            if (new_pos != positions[1])
+            {
+                facing = 3;
+            }
+        }
+    }
 
     // move steps (according to time delta)
     while (time_since_step > STEP_TIME)
@@ -56,9 +94,37 @@ void Snake::step(double delta)
     // check for apple collision
     if (positions[0] == apple_pos)
     {
+        m.fillRect(
+            apple_pos.x,
+            apple_pos.y,
+            SNAKE_SIZE_MULTIPLIER,
+            SNAKE_SIZE_MULTIPLIER,
+            matrix::rgb(BG_COLOR)
+        );
+
         generate_apple();
         size++;
     }
+
+    // check for wall collision
+    if
+    (
+        !(0 <= positions[0].x && positions[0].x < GAME_SIZE_X)
+        || !(0 <= positions[0].y && positions[0].y < GAME_SIZE_Y)
+    )
+    {
+        return false;
+    }
+
+
+    // check for snake collision
+    for (int i = 1; i < size; i++)
+    {
+        if (positions[0] == positions[i])
+            return false;
+    }
+
+    return true;
 }
 
 
@@ -66,13 +132,67 @@ void Snake::render()
 {
     // draw snake
     /// delete snakes end
-    m.drawPixel(positions[size].x, positions[size].y, matrix::rgb(BG_COLOR));
-    m.drawPixel(positions[0].x, positions[0].y, matrix::rgb(SNAKE_HEAD_COLOR));
+    m.fillRect(
+        positions[size].x * SNAKE_SIZE_MULTIPLIER,
+        positions[size].y * SNAKE_SIZE_MULTIPLIER,
+        SNAKE_SIZE_MULTIPLIER,
+        SNAKE_SIZE_MULTIPLIER,
+        matrix::rgb(BG_COLOR)
+    );
     for (int i = 1; i < size; i++)
     {
-        m.drawPixel(positions[i].x, positions[i].y, matrix::rgb(SNAKE_BODY_COLOR));
+        m.fillRect(
+            positions[i].x * SNAKE_SIZE_MULTIPLIER,
+            positions[i].y * SNAKE_SIZE_MULTIPLIER,
+            SNAKE_SIZE_MULTIPLIER,
+            SNAKE_SIZE_MULTIPLIER,
+            matrix::rgb(SNAKE_BODY_COLOR)
+        );
     }
 
+    /// draw snake head (lt to rb)s
+    m.drawPixel(
+        positions[0].x * SNAKE_SIZE_MULTIPLIER,
+        positions[0].y * SNAKE_SIZE_MULTIPLIER,
+        (facing == 0 || facing == 3) ? matrix::rgb(SNAKE_HEAD_COLOR) : matrix::rgb(SNAKE_BODY_COLOR)
+    );
+    m.drawPixel(
+        positions[0].x * SNAKE_SIZE_MULTIPLIER + 1,
+        positions[0].y * SNAKE_SIZE_MULTIPLIER,
+        (facing == 0 || facing == 1) ? matrix::rgb(SNAKE_HEAD_COLOR) : matrix::rgb(SNAKE_BODY_COLOR)
+    );
+    m.drawPixel(
+        positions[0].x * SNAKE_SIZE_MULTIPLIER,
+        positions[0].y * SNAKE_SIZE_MULTIPLIER + 1,
+        (facing == 2 || facing == 3) ? matrix::rgb(SNAKE_HEAD_COLOR) : matrix::rgb(SNAKE_BODY_COLOR)
+    );
+    m.drawPixel(
+        positions[0].x * SNAKE_SIZE_MULTIPLIER + 1,
+        positions[0].y * SNAKE_SIZE_MULTIPLIER + 1,
+        (facing == 1 || facing == 2) ? matrix::rgb(SNAKE_HEAD_COLOR) : matrix::rgb(SNAKE_BODY_COLOR)
+    );
+
+
     // draw apple
-    m.drawPixel(apple_pos.x, apple_pos.y, matrix::rgb(APPLE_COLOR));
+    m.fillRect(
+        apple_pos.x * SNAKE_SIZE_MULTIPLIER,
+        apple_pos.y * SNAKE_SIZE_MULTIPLIER,
+        SNAKE_SIZE_MULTIPLIER,
+        SNAKE_SIZE_MULTIPLIER,
+        matrix::rgb(APPLE_COLOR)
+    );
 }
+
+
+// doesn't really have a game-over screen
+void Snake::game_over_screen() {};
+
+
+void Snake::reset()
+{
+    reset_snake();
+    generate_apple();
+
+    matrix::clear(m, {BG_COLOR});
+}
+

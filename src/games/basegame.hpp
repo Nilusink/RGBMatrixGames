@@ -1,9 +1,42 @@
+#pragma once
+
+
 namespace base
 {
     struct point_t
     {
         int x;
         int y;
+
+
+        bool operator == (const point_t &other) const
+        {
+            return x == other.x && y == other.y;
+        }
+
+        bool operator != (const point_t &other) const
+        {
+            return !(*this == other);
+        }
+
+        point_t operator - (const int num) const
+        {
+            return {x - num, y - num};
+        }
+        point_t operator - (const point_t &other) const
+        {
+            return {x - other.x, y - other.y};
+        }
+
+
+        point_t operator + (const int num) const
+        {
+            return {x + num, y + num};
+        }
+        point_t operator + (const point_t &other) const
+        {
+            return {x + other.x, y + other.y};
+        }
     };
 
     class BaseGame

@@ -228,7 +228,7 @@ void Flappy::game_over_screen()
 
 void Flappy::reset()
 {
-    matrix::clear(m, matrix::rgb(BG_COLOR));
+    matrix::clear(m, {BG_COLOR});
 
     // reset game variables
     bird_y = BIRD_SIZE;

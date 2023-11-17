@@ -9,6 +9,11 @@ uint16_t matrix::rgb(uint8_t r, uint8_t g, uint8_t b)
     return ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
 }
 
+uint16_t matrix::rgb(rgb_t color)
+{
+    return color;
+}
+
 
 void matrix::reset()
 {
@@ -104,10 +109,10 @@ void matrix::reset()
 
 void matrix::clear(RGB64x32MatrixPanel_I2S_DMA &mat)
 {
-    clear(mat, 0);
+    clear(mat, {0, 0, 0});
 }
 
-void matrix::clear(RGB64x32MatrixPanel_I2S_DMA &mat, uint16_t color)
+void matrix::clear(RGB64x32MatrixPanel_I2S_DMA &mat, rgb_t color)
 {
     mat.fillRect(0, 0, X_SIZE, Y_SIZE, color);
 }
