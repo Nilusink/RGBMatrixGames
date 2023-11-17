@@ -8,11 +8,25 @@
 
 namespace matrix
 {
+    struct rgb_t
+    {
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+
+        // convert to 16-bit integer
+        operator uint16_t() const {
+            return ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
+        };
+
+        explicit operator uint16_t*() const { return nullptr; };
+    };
+
     uint16_t rgb(uint8_t r, uint8_t g, uint8_t b);
 
     void reset();
     void clear(RGB64x32MatrixPanel_I2S_DMA &mat);
     void clear(RGB64x32MatrixPanel_I2S_DMA &mat, uint16_t color);
 
-    void print_number(int16_t x, int16_t y, uint number);
+    void fillAntiAliaseRect(RGB64x32MatrixPanel_I2S_DMA &mat, double x, double y, double width, double height, rgb_t color);
 }
