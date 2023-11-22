@@ -6,9 +6,10 @@
 
 using namespace flappy;
 
+const char *Flappy::name = "Flappy Bird";
 
-Flappy::Flappy(RGB64x32MatrixPanel_I2S_DMA &mat)
- : m(mat)
+Flappy::Flappy(RGB64x32MatrixPanel_I2S_DMA &mat, controller::Controller &controller)
+ : m(mat), control(controller)
 {
     // generate walls
     init_walls();
@@ -63,10 +64,12 @@ bool Flappy::step(double delta)
     // physics
     bird_vel_y += GRAVITY * delta;
 
-    if (Serial.available() && bird_vel_y > JUMP_SPEED / 5)
-    {
-        do { Serial.read(); } while (Serial.available());
+    // center press is stop
+    if (control.getButtons() & JOY_DEPRESS)
+        return false;
 
+    if ((control.getButtons() & JOY_ARROWS) && bird_vel_y > JUMP_SPEED / 5)
+    {
         bird_vel_y = JUMP_SPEED;
     }
 
@@ -264,4 +267,10 @@ void Flappy::reset()
 
     // re-generate walls
     init_walls();
+}
+
+
+const char *Flappy::getName()
+{
+    return "Flappy";
 }
