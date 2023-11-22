@@ -1,10 +1,11 @@
 #include <ESP32-RGB64x32MatrixPanel-I2S-DMA.h>
 #include <cmath>
+#include "controller.hpp"
 #include "basegame.hpp"
 
 
 #define GRAVITY 0.15
-#define WORLD_ACC 2
+#define WORLD_ACC .2
 #define WORLD_START_VEL 10
 #define WALL_DISTANCE 20
 #define WALL_THICKNESS 4
@@ -27,10 +28,11 @@
 
 namespace flappy
 {
-    class Flappy : base::BaseGame
+    class Flappy : public base::BaseGame
     {
         protected:
             RGB64x32MatrixPanel_I2S_DMA &m;
+            controller::Controller &control;
 
             double bird_y = BIRD_SIZE;
             double bird_vel_y = 0;
@@ -51,11 +53,15 @@ namespace flappy
             void init_walls();
 
         public:
-            Flappy(RGB64x32MatrixPanel_I2S_DMA &mat);
+            static const char *name;
+
+            Flappy(RGB64x32MatrixPanel_I2S_DMA &mat, controller::Controller &controller);
 
             bool step(double delta) override;
             void render() override;
             void game_over_screen() override;
             void reset() override;
+
+            const char *getName();
     };
 }

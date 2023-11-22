@@ -12,3 +12,7 @@
 #define BL1 27
 #define G1 32
 #define R1 33
+
+#define JX 34
+#define JY 35
+#define JB 14

@@ -6,9 +6,10 @@
 
 using namespace snake;
 
+const char *Snake::name = "Snake";
 
-Snake::Snake(RGB64x32MatrixPanel_I2S_DMA &mat)
- : m(mat)
+Snake::Snake(RGB64x32MatrixPanel_I2S_DMA &mat, controller::Controller &controller)
+ : m(mat), control(controller)
 {
     reset_snake();
     generate_apple();
@@ -37,40 +38,39 @@ bool Snake::step(double delta)
 {
     time_since_step += delta;
 
-    if (Serial.available())
+    if (control.getButtons() & JOY_DEPRESS)
+        return false;
+
+    if (control.getButtons() & JOY_UP)
     {
-        char key = Serial.read();
-        if (key == 'w')
+        base::point_t new_pos = {positions[0].x, positions[0].y - 1};
+        if (new_pos != positions[1])
         {
-            base::point_t new_pos = {positions[0].x, positions[0].y - 1};
-            if (new_pos != positions[1])
-            {
-                facing = 0;
-            }
+            facing = 0;
         }
-        else if (key == 'd')
+    }
+    else if (control.getButtons() & JOY_RIGHT)
+    {
+        base::point_t new_pos = {positions[0].x + 1, positions[0].y};
+        if (new_pos != positions[1])
         {
-            base::point_t new_pos = {positions[0].x + 1, positions[0].y};
-            if (new_pos != positions[1])
-            {
-                facing = 1;
-            }
+            facing = 1;
         }
-        else if (key == 's')
+    }
+    else if (control.getButtons() & JOY_DOWN)
+    {
+        base::point_t new_pos = {positions[0].x, positions[0].y + 1};
+        if (new_pos != positions[1])
         {
-            base::point_t new_pos = {positions[0].x, positions[0].y + 1};
-            if (new_pos != positions[1])
-            {
-                facing = 2;
-            }
+            facing = 2;
         }
-        else if (key == 'a')
+    }
+    else if (control.getButtons() & JOY_LEFT)
+    {
+        base::point_t new_pos = {positions[0].x - 1, positions[0].y};
+        if (new_pos != positions[1])
         {
-            base::point_t new_pos = {positions[0].x - 1, positions[0].y};
-            if (new_pos != positions[1])
-            {
-                facing = 3;
-            }
+            facing = 3;
         }
     }
 
@@ -151,24 +151,32 @@ void Snake::render()
     }
 
     /// draw snake head (lt to rb)s
-    m.drawPixel(
+    m.fillRect(
         positions[0].x * SNAKE_SIZE_MULTIPLIER,
         positions[0].y * SNAKE_SIZE_MULTIPLIER,
+        SNAKE_SIZE_MULTIPLIER / 2,
+        SNAKE_SIZE_MULTIPLIER / 2,
         (facing == 0 || facing == 3) ? matrix::rgb(SNAKE_HEAD_COLOR) : matrix::rgb(SNAKE_BODY_COLOR)
     );
-    m.drawPixel(
-        positions[0].x * SNAKE_SIZE_MULTIPLIER + 1,
+    m.fillRect(
+        positions[0].x * SNAKE_SIZE_MULTIPLIER + SNAKE_SIZE_MULTIPLIER / 2,
         positions[0].y * SNAKE_SIZE_MULTIPLIER,
+        SNAKE_SIZE_MULTIPLIER / 2,
+        SNAKE_SIZE_MULTIPLIER / 2,
         (facing == 0 || facing == 1) ? matrix::rgb(SNAKE_HEAD_COLOR) : matrix::rgb(SNAKE_BODY_COLOR)
     );
-    m.drawPixel(
+    m.fillRect(
         positions[0].x * SNAKE_SIZE_MULTIPLIER,
-        positions[0].y * SNAKE_SIZE_MULTIPLIER + 1,
+        positions[0].y * SNAKE_SIZE_MULTIPLIER + SNAKE_SIZE_MULTIPLIER / 2,
+        SNAKE_SIZE_MULTIPLIER / 2,
+        SNAKE_SIZE_MULTIPLIER / 2,
         (facing == 2 || facing == 3) ? matrix::rgb(SNAKE_HEAD_COLOR) : matrix::rgb(SNAKE_BODY_COLOR)
     );
-    m.drawPixel(
-        positions[0].x * SNAKE_SIZE_MULTIPLIER + 1,
-        positions[0].y * SNAKE_SIZE_MULTIPLIER + 1,
+    m.fillRect(
+        positions[0].x * SNAKE_SIZE_MULTIPLIER + SNAKE_SIZE_MULTIPLIER / 2,
+        positions[0].y * SNAKE_SIZE_MULTIPLIER + SNAKE_SIZE_MULTIPLIER / 2,
+        SNAKE_SIZE_MULTIPLIER / 2,
+        SNAKE_SIZE_MULTIPLIER / 2,
         (facing == 1 || facing == 2) ? matrix::rgb(SNAKE_HEAD_COLOR) : matrix::rgb(SNAKE_BODY_COLOR)
     );
 
@@ -196,3 +204,8 @@ void Snake::reset()
     matrix::clear(m, {BG_COLOR});
 }
 
+
+const char *Snake::getName()
+{
+    return "Snake";
+}

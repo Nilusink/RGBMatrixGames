@@ -56,7 +56,23 @@ namespace base
              * 
              */
             virtual void render();
+
+            /**
+             * @brief render the game-over screen
+             * 
+            */
             virtual void game_over_screen();
+
+            /**
+             * @brief reset the screen
+             * 
+            */
             virtual void reset();
+
+            /**
+             * @brief get the games name
+             * 
+            */
+            virtual const char *getName();
     };
 }
