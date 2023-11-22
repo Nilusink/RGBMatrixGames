@@ -3,15 +3,17 @@
 #include "basegame.hpp"
 
 
-#define GRAVITY 0.1
-#define WORLD_ACC 0.1
+#define GRAVITY 0.15
+#define WORLD_ACC 2
 #define WORLD_START_VEL 10
 #define WALL_DISTANCE 20
 #define WALL_THICKNESS 4
 #define WALL_GAP_HEIGHT 10
+#define MIN_WALL_HEIGHT 2
+#define MAX_WALL_HEIGHT ((Y_SIZE - MIN_WALL_HEIGHT) - WALL_GAP_HEIGHT)
 #define FIRST_WALL 40
 
-#define JUMP_SPEED -.03
+#define JUMP_SPEED -.04
 
 #define BIRD_X 10
 #define BIRD_SIZE 2

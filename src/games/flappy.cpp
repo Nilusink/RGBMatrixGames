@@ -26,7 +26,16 @@ void Flappy::init_walls()
 
 uint Flappy::random_wall_height()
 {
-    return random(2, 30 - WALL_GAP_HEIGHT);
+    // dynamicall generate walls
+    int last_wall_height = wall_heights[(int)floor(X_SIZE / WALL_DISTANCE) - 1];
+    double max_deviation = 2 + MAX_WALL_HEIGHT * (10 / world_vel);
+
+    printf("speed: %f, \tmax_deviation: %f\n", world_vel, max_deviation);
+
+    return random(
+        max(2, (int)floor(last_wall_height - max_deviation)),
+        min(MAX_WALL_HEIGHT, (int)(ceil(last_wall_height + max_deviation)))
+    );
 }
 
 
@@ -56,7 +65,8 @@ bool Flappy::step(double delta)
 
     if (Serial.available() && bird_vel_y > JUMP_SPEED / 5)
     {
-        Serial.read();
+        do { Serial.read(); } while (Serial.available());
+
         bird_vel_y = JUMP_SPEED;
     }
 
@@ -182,10 +192,20 @@ void Flappy::render()
         {BIRD_COLOR}
     );
 
-    // player scores
-    if (score != last_score)
-    {
-    }
+    // eyes
+    if (bird_vel_y >= 0)
+        m.drawPixel(
+            BIRD_X,
+            bird_y + 1,
+            matrix::rgb(0, 255, 0)
+        );
+
+    if (bird_vel_y <= 0)
+        m.drawPixel(
+            BIRD_X,
+            bird_y - 1,
+            matrix::rgb(0, 255, 0)
+        );
 
     /// clear previous number
     m.fillRect(
