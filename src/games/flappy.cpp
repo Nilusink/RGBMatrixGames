@@ -6,7 +6,6 @@
 
 using namespace flappy;
 
-const char *Flappy::name = "Flappy Bird";
 
 Flappy::Flappy(RGB64x32MatrixPanel_I2S_DMA &mat, controller::Controller &controller)
  : m(mat), control(controller)
@@ -272,5 +271,15 @@ void Flappy::reset()
 
 const char *Flappy::getName()
 {
-    return "Flappy";
+    return "Flappy Bird";
+}
+
+
+void Flappy::drawTitle()
+{
+    m.setCursor(14, 7);
+    m.print("Flappy");
+
+    m.setCursor(17, 16);
+    m.print("Bird");
 }

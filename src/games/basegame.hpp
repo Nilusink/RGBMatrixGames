@@ -74,5 +74,10 @@ namespace base
              * 
             */
             virtual const char *getName();
+
+            /**
+             * @brief get the title position (left 8bit=x, right 8bit=y)
+            */
+            virtual void drawTitle();
     };
 }

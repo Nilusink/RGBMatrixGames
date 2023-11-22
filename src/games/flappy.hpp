@@ -53,8 +53,6 @@ namespace flappy
             void init_walls();
 
         public:
-            static const char *name;
-
             Flappy(RGB64x32MatrixPanel_I2S_DMA &mat, controller::Controller &controller);
 
             bool step(double delta) override;
@@ -62,6 +60,7 @@ namespace flappy
             void game_over_screen() override;
             void reset() override;
 
-            const char *getName();
+            const char *getName() override;
+            void drawTitle() override;
     };
 }

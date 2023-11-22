@@ -44,21 +44,19 @@ uint8_t Menu::getPage()
 void Menu::update_page()
 {
     // clear screen
-    m.fillRect(0, 10, 64, 22, matrix::rgb(BG_COLOR));
+    m.fillRect(0, 0, 64, 32, matrix::rgb(BG_COLOR));
 
     // print current game
-    m.setCursor(17, 20);
     m.setTextColor(matrix::rgb(FG_COLOR));
-
-    m.printf(g[current_page]->getName());
+    g[current_page]->drawTitle();
 
     // left arrow
     if (current_page > 0)
     {
         m.fillTriangle(
-            5, 13,
-            0, 16,
-            5, 19,
+            6, 13,
+            1, 16,
+            6, 19,
             matrix::rgb(FG_COLOR)
         );
     }
@@ -67,9 +65,9 @@ void Menu::update_page()
     if (current_page < g.size() -1)
     {
         m.fillTriangle(
-            59, 13,
-            64, 16,
-            59, 19,
+            58, 13,
+            63, 16,
+            58, 19,
             matrix::rgb(FG_COLOR)
         );
     }
@@ -81,12 +79,7 @@ void Menu::reset()
     // clear screen
     m.fillRect(0, 0, 64, 32, matrix::rgb(BG_COLOR));
 
-    // write "Menu"
-    m.setCursor(22, 3);
-    m.setTextColor(matrix::rgb(FG_COLOR));
-
-    m.print("Menu");
-
+    // update menu
     update_page();
 }
 

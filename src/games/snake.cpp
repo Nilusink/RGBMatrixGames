@@ -6,7 +6,6 @@
 
 using namespace snake;
 
-const char *Snake::name = "Snake";
 
 Snake::Snake(RGB64x32MatrixPanel_I2S_DMA &mat, controller::Controller &controller)
  : m(mat), control(controller)
@@ -208,4 +207,11 @@ void Snake::reset()
 const char *Snake::getName()
 {
     return "Snake";
+}
+
+
+void Snake::drawTitle()
+{
+    m.setCursor(18, 13);
+    m.print("Snake");
 }
