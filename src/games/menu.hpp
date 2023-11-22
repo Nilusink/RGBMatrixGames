@@ -31,6 +31,8 @@ namespace menu
             void prevPage();
             uint8_t getPage();
 
+            void settingsPage(uint8_t button_presses);
+
             void update_page();
             void reset();
 

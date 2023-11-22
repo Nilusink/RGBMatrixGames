@@ -41,6 +41,12 @@ uint8_t Menu::getPage()
 }
 
 
+void Menu::settingsPage(uint8_t button_presses)
+{
+
+}
+
+
 void Menu::update_page()
 {
     // clear screen
