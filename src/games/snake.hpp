@@ -24,6 +24,8 @@ namespace snake
     class Snake : public base::BaseGame
     {
         private:
+            double step_time = STEP_TIME;
+
             RGB64x32MatrixPanel_I2S_DMA &m;
             controller::Controller &control;
             base::point_t positions[GAME_SIZE_X * GAME_SIZE_Y];
@@ -46,5 +48,8 @@ namespace snake
 
             const char *getName() override;
             void drawTitle() override;
+
+            std::vector<std::pair<const char*, std::pair<double, double>>> getSettings() override;
+            void setSetting(uint setting_id, double value) override;
     };
 }

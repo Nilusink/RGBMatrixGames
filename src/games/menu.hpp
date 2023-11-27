@@ -20,6 +20,8 @@ namespace menu
             const std::array<base::BaseGame *, 2> &g;
             uint8_t current_page = 0;
 
+            int selected_item = 0;
+
         public:
             Menu(
                 RGB64x32MatrixPanel_I2S_DMA &mat,
@@ -31,7 +33,7 @@ namespace menu
             void prevPage();
             uint8_t getPage();
 
-            void settingsPage(uint8_t button_presses);
+            bool settingsPage(uint8_t button_presses);
 
             void update_page();
             void reset();

@@ -45,7 +45,7 @@ void setup(){
 
     // setup matrix
     matrix::reset();
-    m.setPanelBrightness(30); // SETS THE BRIGHTNESS HERE. 60 OR LOWER IDEAL.
+    m.setPanelBrightness(60); // SETS THE BRIGHTNESS HERE. 60 OR LOWER IDEAL.
     m.begin(R1, G1, BL1, R2, G2, BL2, CH_A, CH_B, CH_C, CH_D, CH_E, LAT, OE, CLK); // setup the LED matrix
 }
 
@@ -71,6 +71,7 @@ void loop()
         }
 
         // go into menu
+        bool in_settings = false;
         if (buttons & JOY_DEPRESS)
         {
             in_menu = true;
@@ -80,14 +81,38 @@ void loop()
             {
                 buttons = c.getButtons();
 
-                if (buttons & JOY_LEFT)
-                    men.prevPage();
-                
-                else if (buttons & JOY_RIGHT)
-                    men.nextPage();
-                
-                else if (buttons & JOY_ARROWS)
-                    in_menu = false;
+                if (in_settings)
+                {
+                    if (buttons & JOY_ARROWS)
+                    {
+                        if (!men.settingsPage(buttons))
+                        {
+                            in_settings = false;
+                            men.reset();
+                        }
+
+                        delay(200);
+                    }
+                }
+                else
+                {
+                    if (buttons & JOY_ARROWS)
+                    {
+                        if (buttons & JOY_LEFT)
+                            men.prevPage();
+                        
+                        else if (buttons & JOY_RIGHT)
+                            men.nextPage();
+                        
+                        else if (buttons & JOY_UP)
+                            in_menu = false;
+                        
+                        else if (buttons & JOY_DOWN)
+                            in_settings = true;
+                        
+                        delay(200);
+                    }
+                }
             }
         }
 

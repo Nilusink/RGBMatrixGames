@@ -30,8 +30,6 @@ uint Flappy::random_wall_height()
     int last_wall_height = wall_heights[(int)floor(X_SIZE / WALL_DISTANCE) - 1];
     double max_deviation = 2 + MAX_WALL_HEIGHT * (10 / world_vel);
 
-    printf("speed: %f, \tmax_deviation: %f\n", world_vel, max_deviation);
-
     return random(
         max(2, (int)floor(last_wall_height - max_deviation)),
         min(MAX_WALL_HEIGHT, (int)(ceil(last_wall_height + max_deviation)))
@@ -74,7 +72,7 @@ bool Flappy::step(double delta)
 
     bird_y += bird_vel_y;
 
-    world_vel += WORLD_ACC * delta;
+    world_vel += acc * delta;
     world_pos += world_vel * delta;
 
 
@@ -257,7 +255,7 @@ void Flappy::reset()
     bird_vel_y = 0;
 
     world_pos = 0;
-    world_vel = WORLD_START_VEL;
+    world_vel = start_speed;
     first_wall_position = FIRST_WALL;
 
     score_counted_for_wall = false;
@@ -282,4 +280,25 @@ void Flappy::drawTitle()
 
     m.setCursor(17, 16);
     m.print("Bird");
+}
+
+
+std::vector<std::pair<const char*, std::pair<double, double>>> Flappy::getSettings()
+{
+    return {{"vel", {start_speed, .1}}, {"acc", {acc, .05}}};
+}
+
+
+void Flappy::setSetting(uint settings_id, double value)
+{
+    switch (settings_id)
+    {
+        case 0:
+            start_speed = value;
+            break;
+        
+        case 1:
+            acc = value;
+            break;
+    }
 }

@@ -1,3 +1,4 @@
+#include "controller.hpp"
 #include "display.hpp"
 #include "menu.hpp"
 
@@ -41,9 +42,66 @@ uint8_t Menu::getPage()
 }
 
 
-void Menu::settingsPage(uint8_t button_presses)
+bool Menu::settingsPage(uint8_t button_presses)
 {
+    if (button_presses & JOY_UP)
+        selected_item--;
+    
+    else if (button_presses & JOY_DOWN)
+        selected_item++;
 
+    printf("Selected: %d\n", selected_item);
+
+    if (selected_item < 0)
+        return false;
+    
+    m.fillRect(0, 0, 64, 32, matrix::rgb(BG_COLOR));
+
+    // general settings
+    m.setTextColor(matrix::rgb(FG_COLOR));
+
+    uint i_setting = 0;
+    // for (auto &[name, value]: g[current_page]->getSettings())
+
+    std::vector<std::pair<const char*, std::pair<double, double>>> settings_values = g[current_page]->getSettings();
+    
+    printf("size: %d", settings_values.size());
+    if (selected_item >= settings_values.size())
+        selected_item = settings_values.size() - 1;
+
+    // change settings
+    if (button_presses & JOY_LEFT)
+    {
+        settings_values[selected_item].second.first -= settings_values[selected_item].second.second;
+        g[current_page]->setSetting(selected_item, settings_values[selected_item].second.first);
+
+    }
+
+    else if (button_presses & JOY_RIGHT)
+    {
+        settings_values[selected_item].second.first += settings_values[selected_item].second.second;
+        g[current_page]->setSetting(selected_item, settings_values[selected_item].second.first);
+    }
+
+    for (; i_setting < settings_values.size(); i_setting++)
+    {
+        const char *name = settings_values[i_setting].first;
+        double value = settings_values[i_setting].second.first;
+        m.setCursor(2, 3 + 10 * i_setting);
+
+        if (i_setting == selected_item)
+        {
+            m.setTextColor(matrix::rgb(BG_COLOR));
+            m.fillRect(0, 3 + 10 * i_setting - 1, 64, 9, matrix::rgb(FG_COLOR));
+        }
+        else
+        {
+            m.setTextColor(matrix::rgb(FG_COLOR));
+        }
+        m.printf("%s: %.2lf", name, value);
+    }
+
+    return true;
 }
 
 
@@ -87,6 +145,9 @@ void Menu::reset()
 
     // update menu
     update_page();
+
+    // reset menu values
+    selected_item = 0;
 }
 
 

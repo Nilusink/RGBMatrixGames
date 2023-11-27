@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 
 namespace base
 {
@@ -38,6 +39,7 @@ namespace base
             return {x + other.x, y + other.y};
         }
     };
+
 
     class BaseGame
     {
@@ -79,5 +81,17 @@ namespace base
              * @brief get the title position (left 8bit=x, right 8bit=y)
             */
             virtual void drawTitle();
+
+            /**
+             * @brief returns the number of settings (settings names are seperated by \t)
+             * 
+            */
+            virtual std::vector<std::pair<const char*, std::pair<double, double>>> getSettings();
+
+            /**
+             * @brief change a setting
+             * 
+            */
+            virtual void setSetting(uint setting_id, double value);
     };
 }

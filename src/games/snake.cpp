@@ -74,9 +74,9 @@ bool Snake::step(double delta)
     }
 
     // move steps (according to time delta)
-    while (time_since_step > STEP_TIME)
+    while (time_since_step > step_time)
     {
-        time_since_step -= STEP_TIME;
+        time_since_step -= step_time;
 
         // move all parts one back
         for (int i = size; i > 0; i--)
@@ -214,4 +214,20 @@ void Snake::drawTitle()
 {
     m.setCursor(18, 13);
     m.print("Snake");
+}
+
+
+std::vector<std::pair<const char*, std::pair<double, double>>> Snake::getSettings()
+{
+    return {{"time", {step_time, .01}}};
+}
+
+
+void Snake::setSetting(uint setting_id, double value)
+{
+    switch (setting_id)
+    {
+        case 0:
+            step_time = value;
+    }
 }

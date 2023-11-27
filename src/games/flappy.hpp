@@ -31,6 +31,9 @@ namespace flappy
     class Flappy : public base::BaseGame
     {
         protected:
+            float start_speed = WORLD_START_VEL;
+            float acc = WORLD_ACC;
+
             RGB64x32MatrixPanel_I2S_DMA &m;
             controller::Controller &control;
 
@@ -62,5 +65,8 @@ namespace flappy
 
             const char *getName() override;
             void drawTitle() override;
+
+            std::vector<std::pair<const char*, std::pair<double, double>>> getSettings() override;
+            void setSetting(uint setting_id, double value) override;
     };
 }
